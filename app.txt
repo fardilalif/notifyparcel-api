@@ -1,0 +1,28 @@
+Models:
+
+1. User:
+    - name: String
+    - email: String
+    - password: String
+    - role: String (admin, user)
+    - phoneNumber: String
+    - verificationToken: String
+    - isVerified: Boolean
+    - verified: Date
+    - passwordToken: String
+    - passwordTokenExpiration: Date
+
+2. Owner
+    - name: String
+    - gender: String (male | female)
+    - studentId: String
+    - email: String
+    - phoneNumber: String
+
+3. Parcel
+    - name: String (parcel number/postage number)
+    - status: String (arrived | pickedup)
+    - arrivedAt: Date
+    - pickedupAt: Date
+    - student: ref Student
+
