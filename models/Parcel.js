@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
 const parcelSchema = new mongoose.Schema({
-  name: {
+  trackingNumber: {
     type: String,
-    required: [true, "please provide parcel name"],
-    min: [3, "please provide parcel name more than 3 characters"],
+    required: [true, "please provide tracking number"],
+    min: [3, "tracking number cannot be less than 3 characters"],
   },
   status: {
     type: String,

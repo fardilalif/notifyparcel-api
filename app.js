@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 
 const connectDB = require("./db/connect.js");
 const express = require("express");
+const cors = require("cors");
 const app = express();
 
 // custom middlewares
@@ -16,6 +17,13 @@ const userRouter = require("./routes/userRoutes.js");
 const parcelRouter = require("./routes/parcelRoutes.js");
 
 app.use(express.json());
+app.use(
+  cors({
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: ["http://localhost:5173"],
+  })
+);
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);

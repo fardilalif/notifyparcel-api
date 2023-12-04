@@ -4,6 +4,7 @@ const {
   getSingleParcel,
   createParcel,
   getAllParcels,
+  getParcelByTrackingNumber,
   getCurrentUserParcels,
   updateParcelArrived,
   updateParcelPickup,
@@ -16,10 +17,21 @@ const {
 
 router.get("/", authenticateUser, authorizePermissions("admin"), getAllParcels);
 router.get("/getCurrentUserParcels", authenticateUser, getCurrentUserParcels);
-router.post("/", createParcel);
-router.get("/:id", authenticateUser, getSingleParcel);
-router.patch("/updateParcelArrived/:id", authenticateUser, updateParcelArrived);
-router.patch("/updateParcelPickup/:id", authenticateUser, updateParcelPickup);
+router.post("/", authenticateUser, createParcel);
+router.get("/:id", getSingleParcel);
+router.get("/trackingNumber/:id", getParcelByTrackingNumber);
+router.patch(
+  "/updateParcelArrived/:id",
+  authenticateUser,
+  authorizePermissions("admin"),
+  updateParcelArrived
+);
+router.patch(
+  "/updateParcelPickup/:id",
+  authenticateUser,
+  authorizePermissions("admin"),
+  updateParcelPickup
+);
 router.delete("/:id", authenticateUser, deleteParcel);
 
 module.exports = router;

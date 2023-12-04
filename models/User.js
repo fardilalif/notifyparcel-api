@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema({
   },
   studentNumber: {
     type: String,
-    required: [true, "please provide student number"],
     minLength: 3,
   },
   email: {
