@@ -8,7 +8,7 @@ const sendVerificationEmailNode = async ({
 }) => {
   const verifyEmailLink = `${origin}/verifyAccount?verificationToken=${verificationToken}&email=${email}`;
   console.log(verifyEmailLink);
-  const message = `<h3>Please confirm your email address by clicking the following link: <a href=${verifyEmailLink}>Verify email</a></h3>`;
+  const message = `<p>Please confirm your email address by clicking the following link: <a href=${verifyEmailLink}>Verify email</a></p>`;
 
   await sendEmail({
     from: "muhdfardilalif@gmail.com",

@@ -1,7 +1,7 @@
 const sendEmail = require("./sendEmailNodemailer.js");
 
 const sendPickupEmail = async ({ name, email, trackingNumber }) => {
-  const message = `<h3>Your parcel with tracking number ${trackingNumber} has been pickup</h3>`;
+  const message = `<p>Your parcel with tracking number: ${trackingNumber} has been pickup</p>`;
 
   await sendEmail({
     from: "muhdfardilalif@gmail.com",
