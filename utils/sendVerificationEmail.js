@@ -1,4 +1,4 @@
-const sendEmail = require('./send-email.js');
+const sendEmail = require("./send-email.js");
 
 const sendVerificationEmail = async ({
   name,
@@ -7,12 +7,12 @@ const sendVerificationEmail = async ({
   origin,
 }) => {
   const verifyEmailLink = `${origin}/user/verify-email?token=${verificationToken}&email=${email}`;
-  const message = `<p>Please confirm your email address by clicking the following link: <a href=${verifyEmailLink}>Verifiy email</a></p>`;
+  const message = `<p>Please confirm your email address by clicking the following link: <a href=${verifyEmailLink}>Verify email</a></p>`;
 
   await sendEmail({
-    from: 'muhdfardilalif@gmail.com',
+    from: "muhdfardilalif@gmail.com",
     to: email,
-    subject: 'Email confirmation',
+    subject: "Email confirmation",
     html: `<h3>Hello, ${name}</h3>${message}`,
   });
 };

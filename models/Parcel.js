@@ -4,6 +4,7 @@ const parcelSchema = new mongoose.Schema({
   trackingNumber: {
     type: String,
     required: [true, "please provide tracking number"],
+    unique: true,
     min: [3, "tracking number cannot be less than 3 characters"],
   },
   status: {

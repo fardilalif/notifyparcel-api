@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const util = require("util");
 const {
   sendVerificationEmail,
+  sendVerificationEmailNode,
   sendResetPasswordEmail,
   createTokenUser,
   attachCookiesToResponse,
@@ -34,16 +35,14 @@ const register = async (req, res) => {
     verificationToken,
   });
 
-  const origin = "http://localhost:3000";
+  const origin = "http://localhost:5173";
 
-  // ENABLE THIS IF IN PRODUCTION
-
-  // await sendVerificationEmail({
-  //   name: user.name,
-  //   email: user.email,
-  //   verificationToken: user.verificationToken,
-  //   origin,
-  // });
+  await sendVerificationEmailNode({
+    name: user.name,
+    email: user.email,
+    verificationToken: user.verificationToken,
+    origin,
+  });
 
   res
     .status(StatusCodes.CREATED)

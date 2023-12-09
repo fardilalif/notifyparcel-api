@@ -2,10 +2,21 @@ const Parcel = require("../models/Parcel.js");
 const { StatusCodes } = require("http-status-codes");
 const Error = require("../errors");
 const checkPermission = require("../utils/checkPermission.js");
+const {
+  sendCreatedEmail,
+  sendArrivalEmail,
+  sendPickupEmail,
+} = require("../utils");
 
 const createParcel = async (req, res) => {
   const data = { ...req.body, owner: req.user.userId };
   const parcel = await Parcel.create(data);
+
+  await sendCreatedEmail({
+    name: req.user.name,
+    email: req.user.email,
+    trackingNumber: parcel.trackingNumber,
+  });
   res.status(StatusCodes.CREATED).json({ parcel });
 };
 
@@ -78,14 +89,21 @@ const updateParcelArrived = async (req, res) => {
     user,
   } = req;
 
-  const parcel = await Parcel.findOne({ _id: parcelId });
+  const parcel = await Parcel.findOne({ _id: parcelId }).populate(
+    "owner",
+    "name email"
+  );
   if (!parcel) {
     throw new Error.NotFoundError(`No parcel with id: ${parcelId}`);
   }
-
   parcel.status = "arrived";
   parcel.arrivedAt = Date.now();
   await parcel.save();
+  await sendArrivalEmail({
+    name: parcel.owner.name,
+    email: parcel.owner.email,
+    trackingNumber: parcel.trackingNumber,
+  });
 
   res.status(StatusCodes.OK).json({ parcel });
 };
@@ -95,7 +113,10 @@ const updateParcelPickup = async (req, res) => {
     user,
   } = req;
 
-  const parcel = await Parcel.findOne({ _id: parcelId });
+  const parcel = await Parcel.findOne({ _id: parcelId }).populate(
+    "owner",
+    "name email"
+  );
   if (!parcel) {
     throw new Error.NotFoundError(`No parcel with id: ${parcelId}`);
   }
@@ -103,6 +124,11 @@ const updateParcelPickup = async (req, res) => {
   parcel.status = "pickup";
   parcel.pickedUp = Date.now();
   await parcel.save();
+  await sendPickupEmail({
+    name: parcel.owner.name,
+    email: parcel.owner.email,
+    trackingNumber: parcel.trackingNumber,
+  });
 
   res.status(StatusCodes.OK).json({ parcel });
 };
