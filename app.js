@@ -24,6 +24,7 @@ app.use(
     origin: ["http://localhost:5173"],
   })
 );
+app.set("trust proxy", 1);
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
