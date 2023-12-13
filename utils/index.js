@@ -7,11 +7,10 @@ const {
 const createHash = require("./createHash.js");
 const checkPermission = require("./checkPermission.js");
 const sendVerificationEmailNode = require("./sendVerificationEmailNode.js");
-const sendCreatedEmail = require("./sendCreatedEmail");
 const sendArrivalEmail = require("./sendArrivalEmail");
 const sendPickupEmail = require("./sendPickupEmail");
+const mailGenerator = require("./mailgen-config.js");
 module.exports = {
-  sendCreatedEmail,
   sendArrivalEmail,
   sendPickupEmail,
   sendVerificationEmailNode,
@@ -21,4 +20,5 @@ module.exports = {
   attachCookiesToResponse,
   createHash,
   checkPermission,
+  mailGenerator,
 };

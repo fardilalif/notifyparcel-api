@@ -2,38 +2,36 @@ const Parcel = require("../models/Parcel.js");
 const { StatusCodes } = require("http-status-codes");
 const Error = require("../errors");
 const checkPermission = require("../utils/checkPermission.js");
-const {
-  sendCreatedEmail,
-  sendArrivalEmail,
-  sendPickupEmail,
-} = require("../utils");
+const { sendArrivalEmail, sendPickupEmail } = require("../utils");
+const endOfDay = require("date-fns/endOfDay");
+const startOfDay = require("date-fns/startOfDay");
 
 const createParcel = async (req, res) => {
-  const data = { ...req.body, owner: req.user.userId };
+  const data = {
+    ...req.body,
+    owner: req.user.role === "admin" ? null : req.user.userId,
+  };
   const parcel = await Parcel.create(data);
 
-  await sendCreatedEmail({
-    name: req.user.name,
-    email: req.user.email,
-    trackingNumber: parcel.trackingNumber,
-  });
   res.status(StatusCodes.CREATED).json({ parcel });
 };
 
 const getAllParcels = async (req, res) => {
-  const result = Parcel.find({}).populate("owner", "name email");
+  const result = Parcel.find({}).populate("owner", "name studentNumber");
 
   // pagination
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-  const length = (await Parcel.find({})).length;
-  const totalPages = Math.ceil(length / limit);
-  const parcels = await result.skip(skip).limit(limit);
+
+  const parcels = await Parcel.find({}).populate("owner", "name studentNumber");
+  const length = parcels.length;
+  const totalPages = Math.ceil(length / limit) || 1;
+  const parcelsPage = await result.skip(skip).limit(limit);
 
   res
     .status(StatusCodes.OK)
-    .json({ parcels, count: length, meta: { page, totalPages } });
+    .json({ parcels, parcelsPage, count: length, meta: { page, totalPages } });
 };
 
 const getCurrentUserParcels = async (req, res) => {
@@ -46,12 +44,14 @@ const getCurrentUserParcels = async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-  const length = await (await Parcel.find({ owner: userId })).length;
+
+  const parcels = await Parcel.find({ owner: userId });
+  const length = parcels.length;
   const totalPages = Math.ceil(length / limit);
-  const parcels = await result.skip(skip).limit(limit);
+  const parcelsPage = await result.skip(skip).limit(limit);
   res
     .status(StatusCodes.OK)
-    .json({ parcels, count: length, meta: { page, totalPages } });
+    .json({ parcels, parcelsPage, count: length, meta: { page, totalPages } });
 };
 
 const getSingleParcel = async (req, res) => {
@@ -83,10 +83,30 @@ const getParcelByTrackingNumber = async (req, res) => {
   res.status(StatusCodes.OK).json({ parcel });
 };
 
+const getParcelsByDate = async (req, res) => {
+  const {
+    query: { date },
+  } = req;
+
+  const parcels = await Parcel.find({
+    arrivedAt: {
+      $lte: endOfDay(new Date(date)),
+      $gte: startOfDay(new Date(date)),
+    },
+  });
+  if (!parcels) {
+    throw new Error.NotFoundError(
+      `No parcel with tracking number: ${trackingNumber}`
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ parcels });
+};
+
 const updateParcelArrived = async (req, res) => {
   const {
     params: { id: parcelId },
-    user,
+    body: { parcelCode, color, size, serviceCharge },
   } = req;
 
   const parcel = await Parcel.findOne({ _id: parcelId }).populate(
@@ -96,21 +116,29 @@ const updateParcelArrived = async (req, res) => {
   if (!parcel) {
     throw new Error.NotFoundError(`No parcel with id: ${parcelId}`);
   }
+  parcel.parcelCode = parcelCode;
+  parcel.color = color;
+  parcel.size = size;
+  parcel.serviceCharge = serviceCharge;
   parcel.status = "arrived";
   parcel.arrivedAt = Date.now();
   await parcel.save();
-  await sendArrivalEmail({
-    name: parcel.owner.name,
-    email: parcel.owner.email,
-    trackingNumber: parcel.trackingNumber,
-  });
+
+  parcel?.owner?.email &&
+    (await sendArrivalEmail({
+      name: parcel.owner.name,
+      email: parcel.owner.email,
+      trackingNumber: parcel.trackingNumber,
+      parcelCode,
+      color,
+      size,
+    }));
 
   res.status(StatusCodes.OK).json({ parcel });
 };
 const updateParcelPickup = async (req, res) => {
   const {
     params: { id: parcelId },
-    user,
   } = req;
 
   const parcel = await Parcel.findOne({ _id: parcelId }).populate(
@@ -124,11 +152,16 @@ const updateParcelPickup = async (req, res) => {
   parcel.status = "pickup";
   parcel.pickedUp = Date.now();
   await parcel.save();
-  await sendPickupEmail({
-    name: parcel.owner.name,
-    email: parcel.owner.email,
-    trackingNumber: parcel.trackingNumber,
-  });
+
+  parcel?.owner?.email &&
+    (await sendPickupEmail({
+      name: parcel.owner.name,
+      email: parcel.owner.email,
+      parcelCode: parcel.parcelCode,
+      color: parcel.color,
+      size: parcel.size,
+      trackingNumber: parcel.trackingNumber,
+    }));
 
   res.status(StatusCodes.OK).json({ parcel });
 };
@@ -155,4 +188,5 @@ module.exports = {
   updateParcelPickup,
   deleteParcel,
   getParcelByTrackingNumber,
+  getParcelsByDate,
 };

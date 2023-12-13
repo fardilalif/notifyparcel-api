@@ -14,7 +14,7 @@ const {
 } = require("../utils");
 
 const register = async (req, res) => {
-  const { email, name, password } = req.body;
+  const { email, name, password, studentNumber } = req.body;
 
   const emailExists = await User.findOne({ email });
   if (emailExists) {
@@ -30,6 +30,7 @@ const register = async (req, res) => {
   const user = await User.create({
     name,
     email,
+    studentNumber,
     password,
     role,
     verificationToken,

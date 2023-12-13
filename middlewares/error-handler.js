@@ -1,19 +1,20 @@
-const { StatusCodes } = require('http-status-codes');
+const { StatusCodes } = require("http-status-codes");
 
 const errorHandlerMiddleware = (err, req, res, next) => {
+  console.log(err);
   let error = {
-    message: err.message || 'Something went wrong, please try again later',
+    message: err.message || "Something went wrong, please try again later",
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
   };
 
-  if (err.name && err.name === 'ValidationError') {
+  if (err.name && err.name === "ValidationError") {
     error.message = Object.values(err.errors)
       .map((error) => error.message)
-      .join(',');
+      .join(",");
     error.statusCode = StatusCodes.BAD_REQUEST;
   }
 
-  if (err.name && err.name === 'CastError') {
+  if (err.name && err.name === "CastError") {
     error.message = `No item found with id: ${err.value}`;
     error.statusCode = StatusCodes.NOT_FOUND;
   }
