@@ -47,7 +47,7 @@ const getCurrentUserParcels = async (req, res) => {
 
   const parcels = await Parcel.find({ owner: userId });
   const length = parcels.length;
-  const totalPages = Math.ceil(length / limit);
+  const totalPages = Math.ceil(length / limit) || 1;
   const parcelsPage = await result.skip(skip).limit(limit);
   res
     .status(StatusCodes.OK)
@@ -93,7 +93,8 @@ const getParcelsByDate = async (req, res) => {
       $lte: endOfDay(new Date(date)),
       $gte: startOfDay(new Date(date)),
     },
-  });
+  }).populate("owner", "name studentNumber");
+
   if (!parcels) {
     throw new Error.NotFoundError(
       `No parcel with tracking number: ${trackingNumber}`

@@ -11,6 +11,7 @@ const parcelSchema = new mongoose.Schema({
   parcelCode: {
     type: String,
     unique: true,
+    sparse: true,
     min: [3, "parcel code cannot be less than 3 characters"],
     trim: true,
   },
