@@ -1,4 +1,5 @@
 const sendEmail = require("./sendEmailNodemailer.js");
+const mailGenerator = require("./mailgen-config.js");
 
 const sendVerificationEmailNode = async ({
   name,
@@ -7,14 +8,29 @@ const sendVerificationEmailNode = async ({
   origin,
 }) => {
   const verifyEmailLink = `${origin}/verifyAccount?verificationToken=${verificationToken}&email=${email}`;
-  console.log(verifyEmailLink);
-  const message = `<p>Please confirm your email address by clicking the following link: <a href=${verifyEmailLink}>Verify email</a></p>`;
+
+  const html = {
+    body: {
+      name,
+      intro: "Account verification",
+      action: {
+        instructions: "To verify your account, click here:",
+        button: {
+          color: "#3b82f6", // Optional action button color
+          text: "Verify account",
+          link: verifyEmailLink,
+        },
+      },
+    },
+  };
+
+  const htmlEmail = mailGenerator.generate(html);
 
   await sendEmail({
     from: "muhdfardilalif@gmail.com",
     to: email,
     subject: "Email confirmation",
-    html: `<h2>Hello, ${name}</h2>${message}`,
+    html: htmlEmail,
   });
 };
 

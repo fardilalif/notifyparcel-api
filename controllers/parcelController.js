@@ -174,7 +174,6 @@ const deleteParcel = async (req, res) => {
   if (!parcel) {
     throw new Error.NotFoundError(`No parcel with id: ${parcelId}`);
   }
-
   await parcel.deleteOne();
 
   res.status(StatusCodes.OK).json({ msg: "parcel removed" });
