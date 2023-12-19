@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const {
   getSingleParcel,
-  getParcelsByDate,
+  getParcelsArrivalByDate,
+  getParcelsPickupByDate,
   createParcel,
   getAllParcels,
   getParcelByTrackingNumber,
@@ -17,28 +18,43 @@ const {
 } = require("../middlewares/authentication.js");
 
 router.get("/", authenticateUser, authorizePermissions("admin"), getAllParcels);
+
 router.get("/getCurrentUserParcels", authenticateUser, getCurrentUserParcels);
+
 router.get(
-  "/getParcelsByDate",
+  "/getParcelsArrivalByDate",
   authenticateUser,
   authorizePermissions("admin"),
-  getParcelsByDate
+  getParcelsArrivalByDate
 );
+
+router.get(
+  "/getParcelsPickupByDate",
+  authenticateUser,
+  authorizePermissions("admin"),
+  getParcelsPickupByDate
+);
+
 router.post("/", authenticateUser, createParcel);
+
 router.get("/:id", getSingleParcel);
+
 router.get("/trackingNumber/:id", getParcelByTrackingNumber);
+
 router.patch(
   "/updateParcelArrived/:id",
   authenticateUser,
   authorizePermissions("admin"),
   updateParcelArrived
 );
+
 router.patch(
   "/updateParcelPickup/:id",
   authenticateUser,
   authorizePermissions("admin"),
   updateParcelPickup
 );
+
 router.delete("/:id", authenticateUser, deleteParcel);
 
 module.exports = router;

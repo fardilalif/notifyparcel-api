@@ -83,13 +83,34 @@ const getParcelByTrackingNumber = async (req, res) => {
   res.status(StatusCodes.OK).json({ parcel });
 };
 
-const getParcelsByDate = async (req, res) => {
+const getParcelsArrivalByDate = async (req, res) => {
   const {
     query: { date },
   } = req;
 
   const parcels = await Parcel.find({
     arrivedAt: {
+      $lte: endOfDay(new Date(date)),
+      $gte: startOfDay(new Date(date)),
+    },
+  }).populate("owner", "name studentNumber");
+
+  if (!parcels) {
+    throw new Error.NotFoundError(
+      `No parcel with tracking number: ${trackingNumber}`
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ parcels });
+};
+
+const getParcelsPickupByDate = async (req, res) => {
+  const {
+    query: { date },
+  } = req;
+
+  const parcels = await Parcel.find({
+    pickedUp: {
       $lte: endOfDay(new Date(date)),
       $gte: startOfDay(new Date(date)),
     },
@@ -188,5 +209,6 @@ module.exports = {
   updateParcelPickup,
   deleteParcel,
   getParcelByTrackingNumber,
-  getParcelsByDate,
+  getParcelsArrivalByDate,
+  getParcelsPickupByDate,
 };
