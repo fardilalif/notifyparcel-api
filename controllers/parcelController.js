@@ -10,6 +10,8 @@ const createParcel = async (req, res) => {
   const data = {
     ...req.body,
     owner: req.user.role === "admin" ? null : req.user.userId,
+    status: req.user.role === "admin" ? "arrived" : null,
+    arrivedAt: req.user.role === "admin" ? Date.now() : null,
   };
   const parcel = await Parcel.create(data);
 
@@ -147,14 +149,14 @@ const updateParcelArrived = async (req, res) => {
   await parcel.save();
 
   parcel?.owner?.email &&
-    (await sendArrivalEmail({
+    sendArrivalEmail({
       name: parcel.owner.name,
       email: parcel.owner.email,
       trackingNumber: parcel.trackingNumber,
       parcelCode,
       color,
       size,
-    }));
+    });
 
   res.status(StatusCodes.OK).json({ parcel });
 };
@@ -176,14 +178,14 @@ const updateParcelPickup = async (req, res) => {
   await parcel.save();
 
   parcel?.owner?.email &&
-    (await sendPickupEmail({
+    sendPickupEmail({
       name: parcel.owner.name,
       email: parcel.owner.email,
       parcelCode: parcel.parcelCode,
       color: parcel.color,
       size: parcel.size,
       trackingNumber: parcel.trackingNumber,
-    }));
+    });
 
   res.status(StatusCodes.OK).json({ parcel });
 };
