@@ -10,7 +10,7 @@ const createParcel = async (req, res) => {
   const data = {
     ...req.body,
     owner: req.user.role === "admin" ? null : req.user.userId,
-    status: req.user.role === "admin" ? "arrived" : null,
+    status: req.user.role === "admin" ? "arrived" : "created",
     arrivedAt: req.user.role === "admin" ? Date.now() : null,
   };
   const parcel = await Parcel.create(data);
