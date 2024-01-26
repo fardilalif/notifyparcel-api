@@ -36,7 +36,7 @@ const register = async (req, res) => {
     verificationToken,
   });
 
-  const origin = "http://localhost:5173";
+  const origin = "https://app.notifyparcel.site";
 
   await sendVerificationEmailNode({
     name: user.name,
@@ -144,7 +144,7 @@ const forgotPassword = async (req, res) => {
   if (user) {
     const randomBytes = util.promisify(crypto.randomBytes);
     const passwordToken = (await randomBytes(40)).toString("hex");
-    const origin = "http://localhost:3000";
+    const origin = "https://app.notifyparcel.site";
     // call sendResetPasswordEmail
     await sendResetPasswordEmail({
       name: user.name,
