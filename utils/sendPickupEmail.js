@@ -18,7 +18,7 @@ const sendPickupEmail = async ({
         button: {
           color: "#3b82f6", // Optional action button color
           text: parcelCode,
-          link: `https://app.notifyparcel.site/kstracking?trackingNumber=${trackingNumber}`,
+          link: `https://app.notifyparcel.site/tracking?trackingNumber=${trackingNumber}`,
         },
       },
       outro: `Color: ${color} Size: ${size}
